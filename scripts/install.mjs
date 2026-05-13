@@ -55,8 +55,23 @@ async function writeShim() {
     mode: 0o755,
   });
 
+  for (const eventName of ["start", "permission", "stop"]) {
+    await writeFile(
+      join(binRoot, `fishmode-${eventName}`),
+      `#!/usr/bin/env sh\nexec "${nodePath}" "${entry}" event ${eventName}\n`,
+      { mode: 0o755 },
+    );
+  }
+
   if (platform() === "win32") {
     await writeFile(join(binRoot, "fishmode.cmd"), `@echo off\r\n"${nodePath}" "${entry}" %*\r\n`, "utf8");
+    for (const eventName of ["start", "permission", "stop"]) {
+      await writeFile(
+        join(binRoot, `fishmode-${eventName}.cmd`),
+        `@echo off\r\n"${nodePath}" "${entry}" event ${eventName}\r\n`,
+        "utf8",
+      );
+    }
   }
 }
 
@@ -123,7 +138,7 @@ async function readHooks() {
 }
 
 function upsertEvent(hooks, eventName, fishmodeEvent) {
-  const command = `${quote(join(binRoot, platform() === "win32" ? "fishmode.cmd" : "fishmode"))} event ${fishmodeEvent}`;
+  const command = join(binRoot, platform() === "win32" ? `fishmode-${fishmodeEvent}.cmd` : `fishmode-${fishmodeEvent}`);
   const statusMessage = fishmodeEvent === "start" ? "Opening Fishmode" : "Returning to Codex";
   const existing = hooks.hooks[eventName] || [];
   const withoutFishmode = existing
@@ -185,11 +200,6 @@ function registerMarketplace() {
     console.warn("Could not register Codex marketplace automatically. Add it manually with:");
     console.warn(`codex plugin marketplace add ${marketplaceRoot}`);
   }
-}
-
-function quote(value) {
-  if (platform() === "win32") return `"${value}"`;
-  return `'${value.replaceAll("'", "'\\''")}'`;
 }
 
 function isFishmodeHookCommand(command) {

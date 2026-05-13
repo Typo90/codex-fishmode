@@ -32,3 +32,32 @@ test("installed fishmode shim works without PATH in hook-like environment", asyn
     await rm(home, { recursive: true, force: true });
   }
 });
+
+test("installer writes hook commands as executable wrapper paths without shell quoting", async () => {
+  const home = await mkdtemp(join(tmpdir(), "fishmode-hooks-"));
+  try {
+    const install = spawnSync("./install.sh", {
+      cwd: repoRoot,
+      env: { ...process.env, HOME: home },
+      encoding: "utf8",
+    });
+    assert.equal(install.status, 0, install.stderr || install.stdout);
+
+    const hooks = JSON.parse(await readFile(join(home, ".codex", "hooks.json"), "utf8"));
+    const startCommand = hooks.hooks.UserPromptSubmit[0].hooks[0].command;
+    const stopCommand = hooks.hooks.Stop[0].hooks[0].command;
+
+    assert.equal(startCommand, join(home, ".codex-fishmode", "bin", "fishmode-start"));
+    assert.equal(stopCommand, join(home, ".codex-fishmode", "bin", "fishmode-stop"));
+    assert.equal(startCommand.includes("'"), false);
+    assert.equal(startCommand.includes(" event "), false);
+
+    const result = spawnSync(startCommand, {
+      env: { HOME: home },
+      encoding: "utf8",
+    });
+    assert.equal(result.status, 0, result.stderr || result.stdout);
+  } finally {
+    await rm(home, { recursive: true, force: true });
+  }
+});
