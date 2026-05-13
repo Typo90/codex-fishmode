@@ -49,13 +49,14 @@ async function uninstallFishmode() {
 
 async function writeShim() {
   const entry = join(cliRoot, "fishmode.js");
+  const nodePath = process.execPath;
   const shim = join(binRoot, "fishmode");
-  await writeFile(shim, `#!/usr/bin/env sh\nexec node "${entry}" "$@"\n`, {
+  await writeFile(shim, `#!/usr/bin/env sh\nexec "${nodePath}" "${entry}" "$@"\n`, {
     mode: 0o755,
   });
 
   if (platform() === "win32") {
-    await writeFile(join(binRoot, "fishmode.cmd"), `@echo off\r\nnode "${entry}" %*\r\n`, "utf8");
+    await writeFile(join(binRoot, "fishmode.cmd"), `@echo off\r\n"${nodePath}" "${entry}" %*\r\n`, "utf8");
   }
 }
 
