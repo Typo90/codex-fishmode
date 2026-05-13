@@ -1,0 +1,40 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "fishmode event start",
+            "timeout": 15,
+            "statusMessage": "Opening Fishmode"
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "fishmode event permission",
+            "timeout": 15,
+            "statusMessage": "Returning to Codex"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "fishmode event stop",
+            "timeout": 15,
+            "statusMessage": "Returning to Codex"
+          }
+        ]
+      }
+    ]
+  }
+}

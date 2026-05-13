@@ -1,0 +1,18 @@
+.DS_Store
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local Codex/runtime artifacts
+.cache/
+.deps/
+.serena/
+
+# Fishmode local state
+.codex-fishmode/
+
+# Build output
+dist/
+coverage/

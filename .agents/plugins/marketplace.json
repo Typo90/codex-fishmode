@@ -1,0 +1,20 @@
+{
+  "name": "codex-fishmode-marketplace",
+  "interface": {
+    "displayName": "Codex Fishmode"
+  },
+  "plugins": [
+    {
+      "name": "codex-fishmode",
+      "source": {
+        "source": "local",
+        "path": "./plugins/fishmode"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

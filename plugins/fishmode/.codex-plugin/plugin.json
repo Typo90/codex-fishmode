@@ -1,0 +1,46 @@
+{
+  "name": "codex-fishmode",
+  "version": "0.1.0",
+  "description": "Open a small browser app-window while Codex works, then return attention when Codex needs you.",
+  "author": {
+    "name": "Codex Fishmode Contributors",
+    "email": "fishmode@example.com",
+    "url": "https://github.com/example/codex-fishmode"
+  },
+  "homepage": "https://github.com/example/codex-fishmode",
+  "repository": "https://github.com/example/codex-fishmode",
+  "license": "MIT",
+  "keywords": [
+    "codex",
+    "hooks",
+    "productivity",
+    "focus",
+    "webview"
+  ],
+  "skills": "./skills/",
+  "hooks": "./hooks/hooks.json",
+  "interface": {
+    "displayName": "Codex Fishmode",
+    "shortDescription": "Browse while Codex works, return when Codex needs attention.",
+    "longDescription": "Codex Fishmode uses Codex lifecycle hooks and the user's system browser app-window mode to open a small configurable browsing window while Codex is working. It automatically returns focus to Codex on permission requests and turn completion.",
+    "developerName": "Codex Fishmode Contributors",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/example/codex-fishmode",
+    "privacyPolicyURL": "https://github.com/example/codex-fishmode/blob/main/PRIVACY.md",
+    "termsOfServiceURL": "https://github.com/example/codex-fishmode/blob/main/LICENSE",
+    "defaultPrompt": [
+      "Configure Fishmode sites",
+      "Turn Fishmode on",
+      "Test Fishmode"
+    ],
+    "brandColor": "#0F766E",
+    "composerIcon": "./assets/icon.svg",
+    "logo": "./assets/logo.svg",
+    "screenshots": []
+  }
+}
