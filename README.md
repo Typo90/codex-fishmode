@@ -10,6 +10,7 @@ The first version intentionally uses the user's existing browser instead of a bu
 
 - Automatic Codex lifecycle hooks.
 - Small browser app-window via Chrome, Edge, Brave, or Chromium.
+- Reuses an existing Fishmode browser window when possible.
 - Falls back to the system default browser.
 - Simple default-page onboarding with `fishmode config`.
 - Local-only config, no telemetry, no proxying.
@@ -55,7 +56,7 @@ fishmode test
 fishmode uninstall
 ```
 
-`fishmode config` lets users choose the default page or add a new page. `fishmode test` opens the selected page and then returns to Codex after a short delay.
+`fishmode config` lets users choose the default page or add a new page. `fishmode test` opens or restores the selected page and then returns to Codex after a short delay.
 
 ## How It Works
 
@@ -74,6 +75,8 @@ The browser launcher prefers app-window capable browsers:
 - Linux: Chrome, Edge, Brave, Chromium
 
 If none are found, Fishmode opens the URL in the system default browser.
+
+On macOS, Fishmode first searches supported browsers for an existing window whose active tab matches the selected site's origin. If it finds one, it restores that window instead of opening another one. If no matching window exists, it opens a new app-window.
 
 ## Configuration
 

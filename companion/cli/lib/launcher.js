@@ -16,6 +16,19 @@ function runDetached(command, args, options = {}) {
   child.unref();
 }
 
+async function runForeground(command, args, options = {}) {
+  try {
+    const child = spawn(command, args, {
+      stdio: "ignore",
+      shell: false,
+      ...options,
+    });
+    return await new Promise((resolve) => child.on("close", resolve));
+  } catch {
+    return 1;
+  }
+}
+
 async function executableExists(path) {
   try {
     await access(path, constants.X_OK);
@@ -41,6 +54,10 @@ export async function openFishWindow(url, { home = homedir() } = {}) {
   const browserPath = process.env.FISHMODE_BROWSER || (await findBrowserPath(platform()));
 
   if (browserPath) {
+    if (await restoreExistingFishWindow(url, { browserPath, platform: platform() })) {
+      return { method: "restored-browser-app-window", url, browserPath };
+    }
+
     const plan = createBrowserLaunchPlan(url, { platform: platform(), browserPath });
     runDetached(plan.command, plan.args, plan.options);
     return { method: "browser-app-window", url, browserPath };
@@ -59,7 +76,7 @@ export async function returnToCodex(appName = "Codex", { home = homedir() } = {}
 }
 
 export function createBrowserLaunchPlan(url, { platform: os = platform(), browserPath }) {
-  const appArgs = [`--app=${url}`, "--window-size=440,720", "--new-window"];
+  const appArgs = [`--app=${url}`, "--window-size=440,720"];
 
   if (os === "darwin") {
     return {
@@ -74,6 +91,37 @@ export function createBrowserLaunchPlan(url, { platform: os = platform(), browse
     args: appArgs,
     method: `${os}-browser-app-window`,
     options: os === "win32" ? { windowsHide: true } : undefined,
+  };
+}
+
+export async function restoreExistingFishWindow(url, { browserPath, platform: os = platform() }) {
+  if (os !== "darwin") return false;
+  const plan = createMacRestorePlan(url, browserPath);
+  return (await runForeground(plan.command, plan.args, plan.options)) === 0;
+}
+
+export function createMacRestorePlan(url, browserPath) {
+  const appName = createMacBrowserAppName(browserPath);
+  const prefix = createUrlMatchPrefix(url);
+  const script = `
+tell application "${escapeAppleScriptString(appName)}"
+  repeat with win in windows
+    try
+      if (URL of active tab of win) starts with "${escapeAppleScriptString(prefix)}" then
+        set index of win to 1
+        activate
+        return
+      end if
+    end try
+  end repeat
+end tell
+error "No Fishmode window for ${escapeAppleScriptString(prefix)}"
+`;
+
+  return {
+    command: "osascript",
+    args: ["-e", script],
+    method: "mac-restore-browser-window",
   };
 }
 
@@ -161,6 +209,24 @@ export function createWindowsBrowserCandidates(env = process.env) {
 
 export function createLinuxBrowserCandidates() {
   return ["google-chrome", "microsoft-edge", "brave-browser", "chromium", "chromium-browser"];
+}
+
+function createMacBrowserAppName(browserPath) {
+  const name = browserPath.split("/").pop() || browserPath;
+  return name.replace(/\.app$/i, "");
+}
+
+function createUrlMatchPrefix(url) {
+  try {
+    const parsed = new URL(url);
+    return `${parsed.protocol}//${parsed.host}`;
+  } catch {
+    return url;
+  }
+}
+
+function escapeAppleScriptString(value) {
+  return String(value).replaceAll("\\", "\\\\").replaceAll('"', '\\"');
 }
 
 async function findFirstExisting(candidates) {

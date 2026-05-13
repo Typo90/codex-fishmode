@@ -3,6 +3,7 @@ import test from "node:test";
 
 import {
   createBrowserLaunchPlan,
+  createMacRestorePlan,
   createFocusPlan,
   createLinuxBrowserCandidates,
   createMacBrowserCandidates,
@@ -23,7 +24,6 @@ test("macOS browser launcher prefers Chrome app window arguments", () => {
     "--args",
     "--app=https://x.com",
     "--window-size=440,720",
-    "--new-window",
   ]);
 });
 
@@ -37,7 +37,6 @@ test("Windows browser launcher uses browser executable app mode", () => {
   assert.deepEqual(plan.args, [
     "--app=https://www.youtube.com",
     "--window-size=440,720",
-    "--new-window",
   ]);
 });
 
@@ -51,8 +50,17 @@ test("Linux browser launcher uses app mode when chromium browser exists", () => 
   assert.deepEqual(plan.args, [
     "--app=https://www.tiktok.com",
     "--window-size=440,720",
-    "--new-window",
   ]);
+});
+
+test("macOS restore plan focuses an existing browser window by active tab URL", () => {
+  const plan = createMacRestorePlan("https://www.xiaohongshu.com/explore", "/Applications/Google Chrome.app");
+
+  assert.equal(plan.command, "osascript");
+  assert.equal(plan.args[0], "-e");
+  assert.match(plan.args[1], /Google Chrome/);
+  assert.match(plan.args[1], /xiaohongshu/);
+  assert.match(plan.args[1], /set index of win to 1/);
 });
 
 test("browser candidate lists include common app-window capable browsers", () => {

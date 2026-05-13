@@ -43,6 +43,8 @@ fishmode test
 
 Fishmode prefiere el modo de ventana de aplicación de Chrome, Edge, Brave o Chromium con `--app=<url>`. Si no encuentra un navegador compatible, usa el navegador predeterminado del sistema.
 
+En macOS, Fishmode primero busca una ventana existente del mismo sitio. Si la encuentra, restaura esa ventana en vez de abrir otra. Si no existe, abre una nueva ventana.
+
 ## Configuración
 
 Archivo de configuración:

@@ -43,6 +43,8 @@ fishmode test
 
 Fishmode 会优先使用 Chrome、Edge、Brave 或 Chromium 的 `--app=<url>` 小窗模式。如果找不到支持的小窗浏览器，就回退到系统默认浏览器。
 
+在 macOS 上，Fishmode 会先查找已有的同站点浏览器窗口；如果找到了，就恢复这个窗口，不会每次新开一个。没有找到时才会打开新窗口。
+
 ## 配置
 
 配置文件位于：
