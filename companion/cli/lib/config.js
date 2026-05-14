@@ -8,6 +8,7 @@ export const CONFIG_FILE_NAME = "config.json";
 export const DEFAULT_CONFIG = {
   enabled: true,
   mode: "random",
+  openDelayMs: 3000,
   activeSite: "https://www.youtube.com",
   lastSite: null,
   codexAppName: "Codex",
@@ -42,6 +43,10 @@ export function normalizeConfig(value = {}) {
   return {
     enabled: value.enabled !== false,
     mode,
+    openDelayMs:
+      Number.isFinite(value.openDelayMs) && value.openDelayMs >= 0
+        ? value.openDelayMs
+        : DEFAULT_CONFIG.openDelayMs,
     activeSite:
       typeof value.activeSite === "string" && value.activeSite.trim()
         ? value.activeSite

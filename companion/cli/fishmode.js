@@ -19,7 +19,7 @@ const [command, subcommand, ...rest] = process.argv.slice(2);
 async function main() {
   switch (command) {
     case "event":
-      await handleEvent(subcommand);
+      await handleEvent(subcommand, { eventArgs: rest });
       break;
     case "on":
       await updateEnabled(true);
@@ -36,7 +36,7 @@ async function main() {
       await configure();
       break;
     case "test":
-      await handleEvent("start");
+      await handleEvent("start", { openDelayMs: 0 });
       setTimeout(async () => {
         await handleEvent("stop");
       }, Number(rest[0] || 1200));

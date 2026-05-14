@@ -4,8 +4,6 @@
 
 Codex Fishmode is a lightweight Codex plugin that opens a small browser app-window while Codex works, then returns focus to Codex when a permission prompt appears or the turn finishes.
 
-The first version intentionally uses the user's existing browser instead of a bundled WebView. That keeps installation small, preserves browser login sessions, and avoids platform-specific binary releases.
-
 ## Highlights
 
 - Automatic Codex lifecycle hooks.
@@ -68,6 +66,8 @@ Codex Fishmode registers user-level Codex hooks:
 | `PermissionRequest` | `fishmode event permission` | Return focus to Codex |
 | `Stop` | `fishmode event stop` | Return focus to Codex |
 
+By default, Fishmode waits 3 seconds before opening the browser window. If Codex finishes before that threshold, the pending window is canceled so quick turns do not flash a browser window.
+
 The browser launcher prefers app-window capable browsers:
 
 - macOS: Google Chrome, Microsoft Edge, Brave, Chromium
@@ -92,6 +92,7 @@ Example:
 {
   "enabled": true,
   "mode": "random",
+  "openDelayMs": 3000,
   "activeSite": "https://www.youtube.com",
   "lastSite": null,
   "codexAppName": "Codex",

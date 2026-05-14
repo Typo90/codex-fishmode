@@ -4,8 +4,6 @@
 
 Codex Fishmode es un prototipo de plugin para Codex. Cuando Codex empieza a trabajar, abre una pequeña ventana del navegador; cuando Codex necesita permisos o termina un turno, devuelve la atención a Codex.
 
-La primera versión usa el navegador instalado del usuario en vez de un WebView empaquetado. Esto mantiene la instalación ligera y conserva las sesiones iniciadas del navegador.
-
 ## Inicio rápido
 
 ```sh

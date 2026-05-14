@@ -173,6 +173,7 @@ async function ensureDefaultConfig() {
       {
         enabled: true,
         mode: "random",
+        openDelayMs: 3000,
         activeSite: "https://www.youtube.com",
         lastSite: null,
         codexAppName: "Codex",

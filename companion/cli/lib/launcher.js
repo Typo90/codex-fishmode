@@ -1,8 +1,10 @@
-import { access, mkdir, writeFile } from "node:fs/promises";
+import { access, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { constants } from "node:fs";
 import { dirname, join } from "node:path";
 import { homedir, platform } from "node:os";
 import { spawn } from "node:child_process";
+import { randomUUID } from "node:crypto";
+import { fileURLToPath } from "node:url";
 
 import { CONFIG_DIR_NAME } from "./config.js";
 
@@ -42,11 +44,70 @@ export function getRuntimeStatePath(home = homedir()) {
   return join(home, CONFIG_DIR_NAME, "state.json");
 }
 
+export function getPendingOpenPath(home = homedir()) {
+  return join(home, CONFIG_DIR_NAME, "pending-open.json");
+}
+
 export async function writeRuntimeState(state, home = homedir()) {
   const path = getRuntimeStatePath(home);
   await mkdir(dirname(path), { recursive: true });
   await writeFile(path, `${JSON.stringify(state, null, 2)}\n`, "utf8");
   return path;
+}
+
+export async function scheduleFishWindowOpen(url, delayMs, { home = homedir() } = {}) {
+  const token = randomUUID();
+  const path = getPendingOpenPath(home);
+  const now = Date.now();
+  await mkdir(dirname(path), { recursive: true });
+  await writeFile(
+    path,
+    `${JSON.stringify(
+      {
+        token,
+        url,
+        delayMs,
+        openAt: new Date(now + delayMs).toISOString(),
+        updatedAt: new Date(now).toISOString(),
+      },
+      null,
+      2,
+    )}\n`,
+    "utf8",
+  );
+
+  const entry = fileURLToPath(new URL("../fishmode.js", import.meta.url));
+  runDetached(process.execPath, [entry, "event", "open-pending", token, String(delayMs)], {
+    env: { ...process.env, HOME: home },
+  });
+  return { token, url, delayMs };
+}
+
+export async function cancelPendingFishWindowOpen({ home = homedir() } = {}) {
+  await rm(getPendingOpenPath(home), { force: true });
+  return { action: "canceled" };
+}
+
+export async function openPendingFishWindow(
+  token,
+  { home = homedir(), delayMs = 0, sleep = wait, opener = openFishWindow } = {},
+) {
+  if (!token) return { action: "missing-token" };
+
+  await sleep(delayMs);
+
+  let pending;
+  try {
+    pending = JSON.parse(await readFile(getPendingOpenPath(home), "utf8"));
+  } catch {
+    return { action: "canceled" };
+  }
+
+  if (pending.token !== token) return { action: "canceled" };
+
+  await rm(getPendingOpenPath(home), { force: true });
+  await opener(pending.url, { home });
+  return { action: "opened", url: pending.url };
 }
 
 export async function openFishWindow(url, { home = homedir() } = {}) {
@@ -249,4 +310,8 @@ async function findFirstCommand(candidates) {
     }
   }
   return null;
+}
+
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

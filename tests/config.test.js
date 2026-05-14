@@ -27,6 +27,7 @@ test("ensureConfig creates defaults in the requested home directory", async () =
 
     assert.equal(config.enabled, true);
     assert.equal(config.mode, "random");
+    assert.equal(config.openDelayMs, 3000);
     assert.equal(config.activeSite, DEFAULT_CONFIG.sites[1].url);
     assert.equal(config.sites.length, DEFAULT_CONFIG.sites.length);
 
@@ -64,6 +65,21 @@ test("saveConfig preserves custom sites and disabled state", async () => {
 
     assert.equal(config.enabled, false);
     assert.equal(config.sites.at(-1).name, "Docs");
+  });
+});
+
+test("loadConfig normalizes invalid open delay to the default threshold", async () => {
+  await withHome(async (home) => {
+    const path = join(home, "config.json");
+    await writeFile(
+      path,
+      `${JSON.stringify({ ...DEFAULT_CONFIG, openDelayMs: -1 }, null, 2)}\n`,
+      "utf8",
+    );
+
+    const config = await loadConfig(path);
+
+    assert.equal(config.openDelayMs, 3000);
   });
 });
 
